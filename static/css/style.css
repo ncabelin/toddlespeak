@@ -1,0 +1,13 @@
+h1 {
+	font-family: 'Raleway', serif;
+	font-weight: 700;
+}
+
+body, html {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 300;
+}
+
+#nav {
+	padding: 15px;
+}
