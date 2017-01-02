@@ -50,7 +50,7 @@ class Goal(Base):
 	date_created = Column(Date, nullable=False)
 	date_modified = Column(Date)
 	date_reached = Column(Date)
-	done = Column(Boolean() default=False, nullable=False)
+	done = Column(Boolean(), default=False, nullable=False)
 
 	@property
 	def serialize(self):
