@@ -41,6 +41,8 @@ Monitoring your toddler's speech can be hard. This app simplifies the ability to
 		c. comment - str()
 		d. date_created
 		e. date_modified
+		f. date_reached
+		g. done
 
 ## Installation
 Make sure to check for or install these dependencies, (through Virtualenv)
