@@ -72,7 +72,20 @@
 					<small>* all fields required</small>
 				</div>
 			</form>
-			<div id="signupMessage"></div>
+			<!-- Button trigger modal -->
+			<button type="button" id="modalBtn" class="btn btn-primary btn-lg hidden" data-toggle="modal" data-target="#myModal">
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-body">
+			        <h4 class="text-center"><span id="result"></span></h4>
+			      </div>
+			    </div>
+			  </div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -85,7 +98,7 @@ $(function() {
 	}
 	$('#day').append(day);
 
-	var yearNow = new Date().getFullYear();
+	var yearNow = new Date().getFullYear() - 1;
 	for (var i = yearNow; i > 2000; i--) {
 		$('#year').append('<option value="' + i + '">' + i + '</option>');
 	}
@@ -100,9 +113,13 @@ $(function() {
 			data: data,
 			dataType: 'json'
 		}).done(function(result) {
+			$('#modalBtn').trigger('click');
+			$('#result').html('Successfully signed up, please Login');
 			console.log(result);
 		}).fail(function(e) {
-			console.log(e);
+			console.log(e.responseJSON);
+			$('#result').html(e.responseJSON);
+			$('#modalBtn').trigger('click');
 		})
 	});
 

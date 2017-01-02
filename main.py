@@ -21,8 +21,8 @@ from itsdangerous import URLSafeSerializer
 import bleach
 from bcrypt import hashpw, checkpw, gensalt
 from functools import wraps
-
-import psycopg2
+import json
+import re
 
 # module
 from secrets import secret
@@ -36,6 +36,27 @@ from database import Base, User, Word, Goal
 engine = create_engine('postgresql://marco:marcopupu2014@localhost:5432/toddledatabase')
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
+
+def respond(msg, err):
+	res = make_response(json.dumps(msg), err)
+	res.headers['Content-Type'] = 'application/json'
+	return res
+
+def valid_username(username):
+	if username and (len(username) < 30):
+		return username
+	else:
+		return None
+
+def valid_password(password):
+	if password and (len(password) > 8):
+		return password
+	else:
+		return None
+
+EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+def valid_email(email):
+	return email and EMAIL_RE.match(email)
 
 def login_required(f):
 	@wraps(f)
@@ -54,11 +75,60 @@ def showHome():
 @app.route('/signup', methods=['POST'])
 def signup():
 	# signup
-	return render_template('signup.html')
+	username = request.form['username']
+	password = request.form['password']
+	verify = request.form['verify']
+	email = request.form['email']
+	t_name = request.form['t_name']
+	month = request.form['month']
+	day = request.form['day']
+	year = request.form['year']
+
+	# check if password and verify match
+	if password != verify:
+		return respond("Passwords don't match", 401)
+
+	# check for duplicate username
+	try:
+		user = session.query(User).filter_by(username = username).one()
+		if user:
+			return respond('Username already taken', 401)
+	except Exception as e:
+		print(e)
+
+	# check if username is below 30 characters
+	username = valid_username(username)
+	if not username:
+		return respond('Invalid username, must be below 31 characters', 401)
+
+	# check if password is not blank or below 8 characters
+	password = valid_password(password)
+
+	if password and valid_email(email) and t_name and month and day and year:
+		newUser = User(
+				username = username,
+				registered_on = datetime.datetime.now().date(),
+				password = hashpw(password.encode('utf-8'), gensalt()),
+				email = email,
+				t_name = t_name,
+				t_birthday = datetime.date(int(year), int(month), int(day))
+			)
+		try:
+			session.add(newUser)
+			session.commit()
+			return respond("Successfully signed up", 200)
+		except Exception as e:
+			print(e)
+			return respond("Error saving", 401)
+	return respond("Please make sure to fill up form correctly", 401)
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	# login  and signup page 
+	if request.method == 'POST':
+		pass
 	return render_template('login.html')
 
 @app.route('/browse', methods=['GET'])
