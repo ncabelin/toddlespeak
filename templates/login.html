@@ -6,39 +6,107 @@
 			<h1 class="text-center">Login</h1>
 		</div>
 		<div class="col-md-4 col-md-offset-4">
-			<form method="POST" class="form-box" action="">
+			<form method="POST" class="form-box" action="/login" id="login">
 				<div class="form-group">
 					<label for="username" class="sr-only">Username</label>
 					<input class="form-control" type="text" name="username" placeholder="Username">
 				</div>
 				<div class="form-group">
-					<label for="password">Password</label>
+					<label for="password" class="sr-only">Password</label>
 					<input class="form-control" type="password" name="password" placeholder="Password">
 				</div>
-				<button type="submit" class="btn btn-primary">Login</button>
+				<div class="text-center">
+					<button type="submit" class="btn btn-primary">Login</button>
+				</div>
 			</form>
 		</div>
 		<div class="col-md-12">
 			<hr>
 			<h1 class="text-center">Signup</h1>
 		</div>
-		<div class="col-md-6 col-md-offset-3">
-			<form method="POST" class="form-box" action="">
+		<div class="col-md-4 col-md-offset-4">
+			<form method="POST" class="form-box" action="/signup" id="signup">
 				<div class="form-group">
 					<label for="username" class="sr-only">Username</label>
 					<input class="form-control" type="text" name="username" placeholder="Username">
 				</div>
 				<div class="form-group">
-					<label for="password">Password</label>
+					<label for="password" class="sr-only">Password</label>
 					<input class="form-control" type="password" name="password" placeholder="Password">
+				</div>
+				<div class="form-group">
+					<label for="verify" class="sr-only">Verify Password</label>
+					<input class="form-control" type="password" name="verify" placeholder="Verify Password">
 				</div>
 				<div class="form-group">
 					<label for="email" class="sr-only">Email</label>
 					<input class="form-control" type="email" name="email" placeholder="Email">
 				</div>
-				<button type="submit" class="btn btn-primary">Submit</button>
+				<div class="form-group">
+					<label for="t_name" class="sr-only">Toddler Name</label>
+					<input class="form-control" type="text" name="t_name" placeholder="Toddler Name">
+				</div>
+				<div class="form-group date">
+					<label for="month" >Toddler Birthday</label>
+					<select class="form-control" name="month" placeholder="Month">
+						<option value="1">January</option>
+						<option value="2">February</option>
+						<option value="3">March</option>
+						<option value="4">April</option>
+						<option value="5">May</option>
+						<option value="6">June</option>
+						<option value="7">July</option>
+						<option value="8">August</option>
+						<option value="9">September</option>
+						<option value="10">October</option>
+						<option value="11">November</option>
+						<option value="12">December</option>
+					</select>
+					<select class="form-control" name="day" placeholder="Day" id="day">
+					</select>
+					<select class="form-control" name="year" placeholder="Year" id="year">
+					</select>
+				</div>
+				<div class="text-center">
+					<button type="submit" class="btn btn-primary" id="submit">Submit</button>
+					<small>* all fields required</small>
+				</div>
 			</form>
+			<div id="signupMessage"></div>
 		</div>
 	</div>
 </div>
+<script>
+$(function() {
+	// Populate form-fields for birthday
+	day = '';
+	for (var i = 1; i < 32; i++) {
+		day += '<option value="' + i + '">' + i + '</option>';
+	}
+	$('#day').append(day);
+
+	var yearNow = new Date().getFullYear();
+	for (var i = yearNow; i > 2000; i--) {
+		$('#year').append('<option value="' + i + '">' + i + '</option>');
+	}
+
+	// AJAX to register
+	$('#signup').submit(function(e) {
+		e.preventDefault();
+		var data = $('#signup').serialize();
+		$.ajax({
+			url: '{{ url_for('signup') }}',
+			method: 'POST',
+			data: data,
+			dataType: 'json'
+		}).done(function(result) {
+			console.log(result);
+		}).fail(function(e) {
+			console.log(e);
+		})
+	});
+
+	// AJAX to login
+});
+</script>
 {% endblock%}
