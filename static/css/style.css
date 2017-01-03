@@ -36,3 +36,7 @@ display:inline-block;
 input .form-control {
 	border-radius: 0;
 }
+
+ul {
+	list-style: none;
+}
