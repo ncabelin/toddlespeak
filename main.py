@@ -1,7 +1,4 @@
-# TO DO
-# 1. Create User Login
-# 2. Create User Signup
-# 3. 
+# ToddleSpeak
 
 import random, string, datetime, os
 
@@ -37,11 +34,21 @@ engine = create_engine('postgresql://marco:marcopupu2014@localhost:5432/toddleda
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
 
-def find_user_logged():
+def find_user():
 	try:
 		user = session.query(User).filter_by(username = login_session['username']).one()
 		return user
 	except:
+		return None
+
+def find_user_logged():
+	if 'username' in login_session:
+		user = User(id = login_session['user_id'],
+				username = login_session['username'],
+				email = login_session['email']
+			)
+		return user
+	else:
 		return None
 
 def respond(msg, err):
@@ -161,12 +168,14 @@ def logout():
 	return respond('Successfully logged out', 200)
 
 @app.route('/browse', methods=['GET'])
+@login_required
 def browse():
 	# main browsing page
 	return render_template('browse.html',
 		user_logged = find_user_logged())
 
 @app.route('/summary', methods=['GET'])
+@login_required
 def summary():
 	return render_template('summary.html',
 		user_logged = find_user_logged())
@@ -183,13 +192,38 @@ def help():
 @login_required
 def addWord():
 	# add word
-	return
+	user = find_user_logged()
+	word = request.form['word']
+	sound = request.form['sound']
+	description = request.form['description']
+	date_heard = datetime.datetime.now().date()
+	newWord = Word(
+			user_id = user.id,
+			word = word,
+			sound = sound,
+			description = description,
+			date_heard = date_heard
+		)
+	try:
+		session.add(newWord)
+		session.commit()
+		return respond("Word Saved", 200)
+	except Exception as e:
+		print(e)
+		return respond("Error saving", 401)
 
 @app.route('/getwords', methods=['GET'])
 @login_required
 def getWords():
 	# get words in JSON format
-	return
+	try:
+		words = session.query(Word).all()
+	except:
+		return respond("No words found", 401)
+	if words:
+		return jsonify(Words = [w.serialize for w in words])
+	else:
+		return respond("No words found", 401)
 
 @app.route('/editword', methods=['POST'])
 @login_required
