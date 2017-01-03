@@ -6,5 +6,94 @@
 			<h1>Dashboard</h1>
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-md-8">
+		</div>
+		<div class="col-md-4">
+			<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseWord" aria-expanded="false" aria-controls="collapseExample">
+			  Add Word
+			</button>
+			<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseGoal" aria-expanded="false" aria-controls="collapseExample">
+			  Add Goal
+			</button>
+			<div class="collapse" id="collapseWord">
+			  <form method="POST" class="form-box" id="wordForm">
+					<div class="form-group">
+						<input class="form-control" type="text" name="word" placeholder="word" id="wordInput">
+						<input class="form-control" type="text" name="sound" placeholder="sound" id="soundInput">
+						<textarea class="form-control" placeholder="description" rows="5" name="description" id="descWordInput"></textarea>
+					</div>
+					<div class="form-group">
+						<button class="btn btn-success"><i class="fa fa-check" aria-hidden="true"></i></button>
+						<button class="btn btn-danger" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample"><i class="fa fa-times" aria-hidden="true"></i></button>
+					</div>
+				</form>
+			</div>
+			<div class="collapse" id="collapseGoal">
+			  <form method="POST" class="form-box" id="goalForm">
+					<div class="form-group">
+						<input class="form-control" type="text" name="goal" placeholder="goal">
+						<textarea class="form-control" placeholder="description" rows="5" name="description"></textarea>
+					</div>
+					<div class="form-group">
+						<button class="btn btn-success"><i class="fa fa-check" aria-hidden="true"></i></button>
+						<button class="btn btn-danger" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample"><i class="fa fa-times" aria-hidden="true"></i></button>
+					</div>
+				</form>
+			</div>
+			<hr>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div id="words">
+				<ul id="wordList">
+				</ul>
+			</div>
+		</div>
+	</div>
 </div>
+<script>
+$(function() {
+	var getWords = function() {
+		$.ajax({
+			url: '/getwords',
+			method: 'GET',
+			dataType: 'json'
+		}).done(function(result) {
+			console.log(result);
+			$('#wordList').empty();
+			result.Words.forEach(function(w) {
+				$('#wordList').append('<li>' + w.word +'</li>')
+			})
+		}).fail(function(e) {
+			console.log(e);
+		});
+	}
+
+	getWords();
+
+	$('#wordForm').submit(function(e) {
+		e.preventDefault();
+		// check if all fields are submitted
+		var word = $('#wordInput').val(),
+				sound = $('#soundInput').val();
+		if (!(word && sound)) {
+			console.log('Must fill up all fields')
+			return
+		}
+		$.ajax({
+			url: '/addword',
+			method: 'POST',
+			data: $('#wordForm').serialize(),
+			dataType: 'json'
+		}).done(function(result) {
+			console.log('Saved');
+			getWords();
+		}).fail(function(e) {
+			console.log(e);
+		});
+	});
+});
+</script>
 {% endblock %}
