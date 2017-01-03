@@ -32,8 +32,8 @@
 			<div class="collapse" id="collapseGoal">
 			  <form method="POST" class="form-box" id="goalForm">
 					<div class="form-group">
-						<input class="form-control" type="text" name="goal" placeholder="goal">
-						<textarea class="form-control" placeholder="description" rows="5" name="description"></textarea>
+						<input class="form-control" type="text" name="goal" placeholder="goal" id="goalInput">
+						<textarea class="form-control" placeholder="description" rows="5" name="description" id="descGoalInput"></textarea>
 					</div>
 					<div class="form-group">
 						<button class="btn btn-success"><i class="fa fa-check" aria-hidden="true"></i></button>
@@ -47,6 +47,9 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div id="words">
+				<h3>Word List</h3>
+				<hr>
+				<h4><span id="wordSum"></span> words</h4>
 				<ul id="wordList">
 				</ul>
 			</div>
@@ -62,10 +65,12 @@ $(function() {
 			dataType: 'json'
 		}).done(function(result) {
 			console.log(result);
+			var words = result.Words;
 			$('#wordList').empty();
-			result.Words.forEach(function(w) {
-				$('#wordList').append('<li>' + w.word +'</li>')
+			words.forEach(function(w) {
+				$('#wordList').append('<li>' + w.word +'</li>');
 			})
+			$('#wordSum').text(words.length);
 		}).fail(function(e) {
 			console.log(e);
 		});
@@ -75,7 +80,7 @@ $(function() {
 
 	$('#wordForm').submit(function(e) {
 		e.preventDefault();
-		// check if all fields are submitted
+		// check if word and sound fields are empty
 		var word = $('#wordInput').val(),
 				sound = $('#soundInput').val();
 		if (!(word && sound)) {
@@ -88,10 +93,31 @@ $(function() {
 			data: $('#wordForm').serialize(),
 			dataType: 'json'
 		}).done(function(result) {
-			console.log('Saved');
+			console.log('Saved Word');
 			getWords();
 		}).fail(function(e) {
 			console.log(e);
+		});
+	});
+
+	$('#goalForm').submit(function(e) {
+		e.preventDefault();
+		// check all fields
+		var goal = $('#goalInput').val(),
+				desc = $('#descGoalInput').val();
+		if (!goal) {
+			console.log('Must fill up all fields')
+			return
+		}
+		$.ajax({
+			url: '/addgoal',
+			method: 'POST',
+			data: $('#goalForm').serialize(),
+			dataType: 'json'
+		}).done(function(result) {
+			console.log('Saved Goal');
+		}).fail(function(e) {
+			console.log(e)
 		});
 	});
 });
