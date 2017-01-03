@@ -20,7 +20,19 @@ body, html {
 	transition: all 0.5s ease;
 }
 
+.btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+    outline: none !important;
+}
+
 .date .form-control {
 width:auto;
 display:inline-block;
+}
+
+#wordForm, #goalForm {
+	padding: 10px;
+}
+
+input .form-control {
+	border-radius: 0;
 }
