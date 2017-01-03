@@ -42,9 +42,13 @@
 				<div class="collapse navbar-collapse" id="menu">
 					<ul class="nav navbar-nav text-center" id="nav">
 						<li><a href="/">HOME</a></li>
-						<li><a href="/browse">DASHBOARD</a></li>
-						<li><a href="/summary">SUMMARY</a></li>
+						{% if user_logged %}
+							<li><a href="/browse">DASHBOARD</a></li>
+							<li><a href="/summary">SUMMARY</a></li>
+							<li><a href="" id="logout">LOGOUT</a></li>
+						{% else %}
 						<li><a href="/login">LOGIN / SIGNUP</a></li>
+						{% endif %}
 						<li><a href="/help">HELP</a></li>
 					</ul>
 				</div>
@@ -57,5 +61,21 @@
 {% block content %}
 {% endblock %}
 </div>
+<script>
+$(function() {
+	$('#logout').click(function() {
+		$.ajax({
+			url: '/logout',
+			method: 'POST',
+			dataType: 'json'
+		}).done(function(result) {
+			console.log(result);
+			window.location.href = '/';
+		}).fail(function(e) {
+			alert('Error logging out');
+		});
+	});
+});
+</script>
 </body>
 </html>

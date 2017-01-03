@@ -120,10 +120,29 @@ $(function() {
 			console.log(e.responseJSON);
 			$('#result').html(e.responseJSON);
 			$('#modalBtn').trigger('click');
-		})
+		});
 	});
 
 	// AJAX to login
+	$('#login').submit(function(e) {
+		e.preventDefault();
+		var data = $('#login').serialize();
+		$.ajax({
+			url: '{{ url_for('login') }}',
+			method: 'POST',
+			data: data,
+			dataType: 'json'
+		}).done(function(result) {
+			$('#modalBtn').trigger('click');
+			$('#result').html('Successfully logged in, redirecting...');
+			console.log(result);
+			window.location.href = '/browse';
+		}).fail(function(e) {
+			console.log(e.responseJSON);
+			$('#result').html(e.responseJSON);
+			$('#modalBtn').trigger('click');
+		});
+	});
 });
 </script>
 {% endblock%}

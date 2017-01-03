@@ -37,6 +37,13 @@ engine = create_engine('postgresql://marco:marcopupu2014@localhost:5432/toddleda
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
 
+def find_user_logged():
+	try:
+		user = session.query(User).filter_by(username = login_session['username']).one()
+		return user
+	except:
+		return None
+
 def respond(msg, err):
 	res = make_response(json.dumps(msg), err)
 	res.headers['Content-Type'] = 'application/json'
@@ -70,7 +77,7 @@ def login_required(f):
 @app.route('/', methods=['GET'])
 def showHome():
 	# homepage
-	return render_template('home.html')
+	return render_template('home.html', user_logged = find_user_logged())
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -128,21 +135,46 @@ def signup():
 def login():
 	# login  and signup page 
 	if request.method == 'POST':
-		pass
-	return render_template('login.html')
+		username = request.form['username']
+		password = request.form['password']
+		try:
+			user = session.query(User).filter_by(username = username).one()
+			hashed = user.password.encode('utf-8')
+			if (hashpw(password.encode('utf-8'), 
+				hashed) == hashed): # and (user.confirmed == True):
+				login_session['user_id'] = user.id
+				login_session['username'] = user.username
+				login_session['email'] = user.password
+				return respond("Successfully logged in", 200)
+		except Exception as e:
+			print(e)
+		return respond("Invalid login", 401)
+	return render_template('login.html', user_logged = find_user_logged())
+
+@app.route('/logout', methods=['POST'])
+@login_required
+def logout():
+	# Logout
+	login_var = ['user_id', 'username', 'email']
+	for l in login_var:
+		del login_session[l]
+	return respond('Successfully logged out', 200)
 
 @app.route('/browse', methods=['GET'])
 def browse():
 	# main browsing page
-	return render_template('browse.html')
+	return render_template('browse.html',
+		user_logged = find_user_logged())
 
 @app.route('/summary', methods=['GET'])
 def summary():
-	return render_template('summary.html')
+	return render_template('summary.html',
+		user_logged = find_user_logged())
 
 @app.route('/help', methods=['GET'])
 def help():
-	return render_template('help.html')
+	return render_template('help.html',
+		user_logged = find_user_logged())
 
 
 # Restful API Endpoints
