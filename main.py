@@ -229,6 +229,7 @@ def getWords():
 @login_required
 def editWord():
 	# edit word
+	user = find_user_logged()
 	return
 
 @app.route('/deleteword', methods=['DELETE'])
@@ -237,17 +238,44 @@ def deleteWord():
 	# delete word
 	return
 
-@app.route('/addgoal', methods=['GET','POST'])
+@app.route('/addgoal', methods=['POST'])
 @login_required
 def addGoal():
 	# add goal
-	return
+	print(request.form.getlist('name[]'))
+	user = find_user_logged()
+	goal = request.form['goal']
+	desc = request.form['description']
+	newGoal = Goal(
+			user_id = user.id,
+			goal = goal,
+			description = desc,
+			date_created = datetime.datetime.now().date(),
+			done = False
+		)
+	print('test')
+	try:
+		session.add(newGoal)
+		session.commit()
+		return respond("Added goal", 200)
+	except Exception as e:
+		print(e)
+		return respond("Error saving goal", 401)
 
-@app.route('/getgoals', methods=['GET','POST'])
+@app.route('/getgoals', methods=['GET'])
 @login_required
 def getGoals():
 	# get goals
-	return
+	user = find_user_logged()
+	try:
+		goals = session.query(Goal).filter_by(user_id = user.id).all()
+		if goals:
+			return jsonify(Goals = [g.serialize for g in goals])
+		else:
+			return respond("No goals found", 401)
+	except Exception as e:
+		print(e)
+		return respond("Error getting goals", 401)
 
 @app.route('/editgoal', methods=['GET','POST'])
 @login_required

@@ -49,8 +49,10 @@
 			<div id="words">
 				<h3>Word List</h3>
 				<hr>
-				<h4><span id="wordSum"></span> words</h4>
+				<h4><span id="wordSum"></span> words, <span id="goalSum"></span> goals</h4>
 				<ul id="wordList">
+				</ul>
+				<ul id="goalList">
 				</ul>
 			</div>
 		</div>
@@ -77,6 +79,26 @@ $(function() {
 	}
 
 	getWords();
+
+	var getGoals = function() {
+		$.ajax({
+			url: '/getgoals',
+			method: 'GET',
+			dataType: 'json'
+		}).done(function(result) {
+			console.log(result);
+			var goals = result.Goals;
+			$('#goalList').empty();
+			goals.forEach(function(g) {
+				$('#goalList').append('<li>' + g.goal +'</li>');
+			})
+			$('#goalSum').text(goals.length);
+		}).fail(function(e) {
+			console.log(e);
+		});
+	}
+
+	getGoals();
 
 	$('#wordForm').submit(function(e) {
 		e.preventDefault();
@@ -109,13 +131,16 @@ $(function() {
 			console.log('Must fill up all fields')
 			return
 		}
+		var data = $('#goalForm').serialize();
+		console.log(data);
 		$.ajax({
 			url: '/addgoal',
 			method: 'POST',
-			data: $('#goalForm').serialize(),
+			data: { goal: goal, description: desc },
 			dataType: 'json'
 		}).done(function(result) {
 			console.log('Saved Goal');
+			getGoals();
 		}).fail(function(e) {
 			console.log(e)
 		});
