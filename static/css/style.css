@@ -3,6 +3,10 @@ h1 {
 	font-weight: 700;
 }
 
+h3 {
+	margin-top: 10px;
+}
+
 body, html {
 	font-family: 'Open Sans', sans-serif;
 	font-weight: 300;
@@ -21,12 +25,19 @@ body, html {
 }
 
 .btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
-    outline: none !important;
+  outline: none !important;
+}
+
+.circle-btn {
+	height: 40px;
+	width: 40px;
+	border-radius: 100%;
+	padding: 5px;
 }
 
 .date .form-control {
-width:auto;
-display:inline-block;
+	width:auto;
+	display:inline-block;
 }
 
 #wordForm, #goalForm {
@@ -39,4 +50,21 @@ input .form-control {
 
 ul {
 	list-style: none;
+}
+
+#goals, #words {
+	border: 1px solid #ccc;
+	padding: 15px;
+}
+
+input #wordInput .form-control {
+	border-bottom: 0;
+}
+
+.form-control {
+	border-radius: 0;
+}
+
+#goals {
+
 }
