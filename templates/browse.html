@@ -1,65 +1,68 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container">
+<div class="container-fluid">
 	<div class="row">
 		<div class="col-md-12">
 			<h1>Dashboard</h1>
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-8">
-		</div>
 		<div class="col-md-4">
-			<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseWord" aria-expanded="false" aria-controls="collapseExample">
-			  Add Word
-			</button>
-			<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseGoal" aria-expanded="false" aria-controls="collapseExample">
-			  Add Goal
-			</button>
-			<div class="collapse" id="collapseWord">
-			  <form method="POST" class="form-box" id="wordForm">
-					<div class="form-group">
-						<input class="form-control" type="text" name="word" placeholder="word" id="wordInput">
-						<input class="form-control" type="text" name="sound" placeholder="sound" id="soundInput">
-						<textarea class="form-control" placeholder="description" rows="5" name="description" id="descWordInput"></textarea>
-					</div>
-					<div class="form-group">
-						<button class="btn btn-success"><i class="fa fa-check" aria-hidden="true"></i></button>
-						<button class="btn btn-danger" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample"><i class="fa fa-times" aria-hidden="true"></i></button>
-					</div>
-				</form>
-			</div>
-			<div class="collapse" id="collapseGoal">
-			  <form method="POST" class="form-box" id="goalForm">
-					<div class="form-group">
-						<input class="form-control" type="text" name="goal" placeholder="goal" id="goalInput">
-						<textarea class="form-control" placeholder="description" rows="5" name="description" id="descGoalInput"></textarea>
-					</div>
-					<div class="form-group">
-						<button class="btn btn-success"><i class="fa fa-check" aria-hidden="true"></i></button>
-						<button class="btn btn-danger" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample"><i class="fa fa-times" aria-hidden="true"></i></button>
-					</div>
-				</form>
-			</div>
-			<hr>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-12">
-			<div id="words">
-				<h3>Word List</h3>
-				<hr>
-				<h4><span id="wordSum"></span> words, <span id="goalSum"></span> goals</h4>
-				<ul id="wordList">
-				</ul>
+			<div id="goals">
+				<h3><span id="goalSum"></span> Goals</h3>
 				<ul id="goalList">
 				</ul>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div id="words">
+				<h3><span id="wordSum"></span> Words</h3>
+				<ul id="wordList">
+				</ul>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<ul class="nav nav-tabs" id="myTabs">
+				<li role="presentation" class="active"><a href="#wordPanel" id="word-tab">Add Word</a></li>
+				<li role="presentation"><a href="#goalPanel" id="goal-tab">Add Goal</a></li>
+			</ul>
+			<div class="tab-content" id="myTabContent">
+				<div class="tab-pane fade in active" role="tabpanel" id="wordPanel" aria-labelledby="word-tab">
+					<form method="POST" class="form-box" id="wordForm">
+						<div class="form-group">
+							<input class="form-control" type="text" name="word" placeholder="word" id="wordInput">
+							<input class="form-control" type="text" name="sound" placeholder="sound" id="soundInput">
+							<textarea class="form-control" placeholder="description" rows="5" name="description" id="descWordInput"></textarea>
+						</div>
+						<div class="form-group">
+							<button class="btn btn-success circle-btn"><i class="fa fa-plus" aria-hidden="true"></i></button>
+						</div>
+					</form>
+				</div>
+				<div class="tab-pane fade" role="tabpanel" id="goalPanel" aria-labelledby="goal-tab">
+					<form method="POST" class="form-box" id="goalForm">
+						<div class="form-group">
+							<input class="form-control" type="text" name="goal" placeholder="goal" id="goalInput">
+							<textarea class="form-control" placeholder="description" rows="5" name="description" id="descGoalInput"></textarea>
+						</div>
+						<div class="form-group">
+							<button class="btn btn-success circle-btn"><i class="fa fa-plus" aria-hidden="true"></i></button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
 <script>
 $(function() {
+	$('#myTabs a').click(function(e) {
+		e.preventDefault();
+		$(this).tab('show');
+	});
+
+	$('#myTabs a[href="#wordPanel"]').tab('show');
+
 	var getWords = function() {
 		$.ajax({
 			url: '/getwords',
