@@ -33,175 +33,38 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-4">
-			<ul class="nav nav-tabs" id="myTabs">
-				<li role="presentation" class="active"><a href="#wordPanel" id="word-tab">Add Word</a></li>
-				<li role="presentation"><a href="#goalPanel" id="goal-tab">Add Goal</a></li>
-			</ul>
-			<div class="tab-content" id="myTabContent">
-				<div class="tab-pane fade in active" role="tabpanel" id="wordPanel" aria-labelledby="word-tab">
-					<form method="POST" class="form-box" id="wordForm">
-						<div class="form-group">
-							<input class="form-control" type="text" name="word" placeholder="word" id="wordInput">
-							<input class="form-control" type="text" name="sound" placeholder="sound" id="soundInput">
-							<textarea class="form-control" placeholder="description" rows="5" name="description" id="descWordInput"></textarea>
-						</div>
-						<div class="form-group">
-							<button class="btn btn-success circle-btn"><i class="fa fa-plus" aria-hidden="true"></i></button>
-						</div>
-					</form>
-				</div>
-				<div class="tab-pane fade" role="tabpanel" id="goalPanel" aria-labelledby="goal-tab">
-					<form method="POST" class="form-box" id="goalForm">
-						<div class="form-group">
-							<input class="form-control" type="text" name="goal" placeholder="goal" id="goalInput">
-							<textarea class="form-control" placeholder="description" rows="5" name="description" id="descGoalInput"></textarea>
-						</div>
-						<div class="form-group">
-							<button class="btn btn-success circle-btn"><i class="fa fa-plus" aria-hidden="true"></i></button>
-						</div>
-					</form>
-				</div>
-			</div>
 		</div>
 	</div>
 </div>
 <!-- Button trigger modal for Edit Word -->
-<button type="button" class="hidden" data-toggle="modal" data-target="#editModal" id="edit-btn">
-</button>
 
 <!-- Edit Word Modal -->
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="editModalLabel">Edit Word</h4>
+        <h4 class="modal-title" id="modalTitle"></h4>
+        	<div id="errMsg"></div>
       </div>
-      <div class="modal-body">
-        <form method="POST" class="form-box" id="editWordForm">
-					<div class="form-group">
-						<input class="form-control" type="text" name="word" placeholder="word" id="wordEdit">
-						<input class="form-control" type="text" name="sound" placeholder="sound" id="soundEdit">
-						<textarea class="form-control" placeholder="description" rows="5" name="description" id="descEdit"></textarea>
-					</div>
-				</form>
+      <div class="modal-body" id="modalBody">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <span id="submitBtn"></span>
       </div>
     </div>
   </div>
 </div>
-<script>
-$(function() {
-	// click event handler for Tabs (Add word, Add goal)
-	$('#myTabs a').click(function(e) {
-		e.preventDefault();
-		$(this).tab('show');
-	});
 
-	// show default tab 'Add Word'
-	$('#myTabs a[href="#wordPanel"]').tab('show');
 
-	// returns date only in m d, y format
-	function filterDate(dateStr) {
-		var arr = dateStr.split(' ');
-		return arr[2] + ' ' + arr[1] + ', ' + arr[3];
-	};
+<button type="button" class="hidden" data-toggle="modal" data-target="#editModal" id="showModal"></button>
 
-	var getWords = function() {
-		$.ajax({
-			url: '/getwords',
-			method: 'GET',
-			dataType: 'json'
-		}).done(function(result) {
-			console.log(result);
-			var words = result.Words;
-			$('#wordList').empty();
-			words.forEach(function(w) {
-				$('#wordList').append('<tr class="word-row" data-id="' + w.word_id + '"><td>' + w.word + '</td><td>' + 
-					w.sound + '</td><td>'+ w.description + '</td><td>' + filterDate(w.date_heard)
-					+ '</td></tr>');
-			})
-			$('#wordSum').text(words.length);
-			$('.word-row').click(function(e) {
-				console.log('click');
-				$('#edit-btn').trigger('click');
-			})
-		}).fail(function(e) {
-			console.log(e);
-		});
-	}
-
-	getWords();
-
-	var getGoals = function() {
-		$.ajax({
-			url: '/getgoals',
-			method: 'GET',
-			dataType: 'json'
-		}).done(function(result) {
-			console.log(result);
-			var goals = result.Goals;
-			$('#goalList').empty();
-			goals.forEach(function(g) {
-				$('#goalList').append('<li>' + g.goal +'</li>');
-			})
-			$('#goalSum').text(goals.length);
-		}).fail(function(e) {
-			console.log(e);
-		});
-	}
-
-	getGoals();
-
-	$('#wordForm').submit(function(e) {
-		e.preventDefault();
-		// check if word and sound fields are empty
-		var word = $('#wordInput').val(),
-				sound = $('#soundInput').val();
-		if (!(word && sound)) {
-			console.log('Must fill up all fields')
-			return
-		}
-		$.ajax({
-			url: '/addword',
-			method: 'POST',
-			data: $('#wordForm').serialize(),
-			dataType: 'json'
-		}).done(function(result) {
-			console.log('Saved Word');
-			getWords();
-		}).fail(function(e) {
-			console.log(e);
-		});
-	});
-
-	$('#goalForm').submit(function(e) {
-		e.preventDefault();
-		// check all fields
-		var goal = $('#goalInput').val(),
-				desc = $('#descGoalInput').val();
-		if (!goal) {
-			console.log('Must fill up all fields')
-			return
-		}
-		var data = $('#goalForm').serialize();
-		console.log(data);
-		$.ajax({
-			url: '/addgoal',
-			method: 'POST',
-			data: { goal: goal, description: desc },
-			dataType: 'json'
-		}).done(function(result) {
-			console.log('Saved Goal');
-			getGoals();
-		}).fail(function(e) {
-			console.log(e)
-		});
-	});
-});
-</script>
+<footer>
+	<div class="col-md-12 text-center">
+		<button class="btn btn-success" id="addWordBtn">Add Word</button>
+		<button class="btn btn-success" id="addGoalBtn">Add Goal</button>
+	</div>
+</footer>
+<script src="static/js/dashboard.js"></script>
 {% endblock %}
