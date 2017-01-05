@@ -17,7 +17,7 @@ $(function() {
 	// add word modal
 	$('#addWordBtn').click(function() {
 		// empty modal title, body, submit button
-		$('#wordForm').remove();
+		$('#wordForm, #goalForm').remove();
 		var addWordForm = $('<form />', { action: '/addword', method: 'POST', class: 'form-box', id: 'wordForm'}),
 			formGroup = $('<div />', { class: 'form-group' }),
 			wordField = $('<input />', { class: 'form-control', type: 'text', name: 'word',
@@ -61,7 +61,47 @@ $(function() {
 	});
 
 	$('#addGoalBtn').click(function(e) {
-
+		// empty modal title, body, submit button
+		$('#wordForm, #goalForm').remove();
+		var addGoalForm = $('<form />', { action: '/addgoal', method: 'POST', class: 'form-box', id: 'goalForm'}),
+			formGroup = $('<div />', { class: 'form-group' }),
+			goalField = $('<input />', { class: 'form-control', type: 'text', name: 'goal',
+						id: 'goalInput', placeholder: 'word'}),
+			textField = $('<textarea />', { class: 'form-control', name: 'description',
+						id: 'descGoalInput', placeholder: 'description'}),
+			submitForm = $('<input />', { type: 'submit', class: 'hidden', id: 'addGoalSubmitBtn'}),
+			submitModal = $('<label />', { for: 'addGoalSubmitBtn', class: 'btn btn-primary', text: 'Save'});
+		// populate modal form
+		addGoalForm.append(formGroup, goalField, textField, submitForm)
+		$('#modalTitle').html('Add Goal');
+		$('#modalBody').append(addGoalForm);
+		$('#submitBtn').html(submitModal);
+		// open modal
+		$('#showModal').trigger('click');
+		$('#goalForm').submit(function(e) {
+			e.preventDefault();
+			// check all fields
+			var goal = $('#goalInput').val(),
+					desc = $('#descGoalInput').val();
+			if (!goal) {
+				$('#errMsg').html('<div class="alert alert-danger">Fill up all fields</div>');
+				return
+			}
+			var data = $('#goalForm').serialize();
+			console.log(data);
+			$.ajax({
+				url: '/addgoal',
+				method: 'POST',
+				data: { goal: goal, description: desc },
+				dataType: 'json'
+			}).done(function(result) {
+				$('.close').trigger('click');
+				console.log('Saved Goal');
+				getGoals();
+			}).fail(function(e) {
+				console.log(e)
+			});
+		});
 	});
 
 	var addGoalForm = $('<form />', { action: '/addgoal', method: 'POST'})
@@ -76,14 +116,31 @@ $(function() {
 			var words = result.Words;
 			$('#wordList').empty();
 			words.forEach(function(w) {
-				$('#wordList').append('<tr class="word-row" data-id="' + w.word_id + '"><td>' + w.word + '</td><td>' + 
-					w.sound + '</td><td>'+ w.description + '</td><td>' + filterDate(w.date_heard)
+				$('#wordList').append('<tr class="word-row" data-id="' + w.word_id + '"><td class="word">' + w.word + '</td><td class="sound">' + 
+					w.sound + '</td><td class="description">'+ w.description + '</td><td class="hidden">' + w.word_id + '</td><td>' + filterDate(w.date_heard)
 					+ '</td></tr>');
 			})
 			$('#wordSum').text(words.length);
 			$('.word-row').click(function(e) {
-				console.log('click');
-				$('#edit-btn').trigger('click');
+				var row = this.getElementsByTagName('td');
+				var editWordForm = $('<form />', { action: '/editword', method: 'POST', class: 'form-box' }),
+						formGroup = $('<div />', { class: 'form-group' }),
+						idField = $('<input />', { class: 'hidden', name: 'id', value: row[3].innerText }),
+						wordField = $('<input />', { class: 'form-control', type: 'text', name: 'word',
+								id: 'wordInput', placeholder: 'word', value: row[0].innerText }),
+						soundField = $('<input />', { class: 'form-control', type: 'text', name: 'sound',
+								id: 'soundInput', placeholder: 'sound', value: row[1].innerText })
+						textField = $('<textarea />', { class: 'form-control', name: 'description',
+								id: 'soundInput', placeholder: 'description', value: row[2].innerText }),
+						submitForm = $('<input />', { type: 'submit', class: 'hidden', id: 'editWordSubmitBtn'}),
+						submitModal = $('<label />', { for: 'editWordSubmitBtn', class: 'btn btn-primary', text: 'Save'});
+						editWordForm.append(formGroup, wordField, soundField, textField, submitForm);
+
+				$('#modalTitle').html('Edit Word');
+				$('#modalBody').append(editWordForm);
+				$('#submitBtn').html(submitModal);
+				// open modal
+				$('#showModal').trigger('click');
 			})
 		}).fail(function(e) {
 			console.log(e);
@@ -112,27 +169,4 @@ $(function() {
 
 	getGoals();
 
-	$('#goalForm').submit(function(e) {
-		e.preventDefault();
-		// check all fields
-		var goal = $('#goalInput').val(),
-				desc = $('#descGoalInput').val();
-		if (!goal) {
-			console.log('Must fill up all fields')
-			return
-		}
-		var data = $('#goalForm').serialize();
-		console.log(data);
-		$.ajax({
-			url: '/addgoal',
-			method: 'POST',
-			data: { goal: goal, description: desc },
-			dataType: 'json'
-		}).done(function(result) {
-			console.log('Saved Goal');
-			getGoals();
-		}).fail(function(e) {
-			console.log(e)
-		});
-	});
 });
